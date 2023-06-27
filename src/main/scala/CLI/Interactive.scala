@@ -12,7 +12,7 @@ object Interactive {
     val path = askLocation ("Enter the location of folder or file to be encrypted/decrypted: ");
     val storePath = askLocation("Enter the location where you want to store your encrypted/decrypted file/files.")
     val password = askPassword();
-    new Data(encrypt, path, storePath, password);
+    Data(encrypt, path, storePath, password);
   }
 
   private def askEncrypted (): Boolean = {
@@ -33,7 +33,7 @@ object Interactive {
       path = readLine();
     } while (!FileHandling.validatePath(path, ()=>print("Invalid Location. ")));
 
-    return path
+    path
   }
 
   private def askPassword (): String = {
@@ -50,6 +50,6 @@ object Interactive {
       return true;
     }
     callback()
-    return false
+    false
   }
 }
