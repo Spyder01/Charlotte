@@ -11,7 +11,6 @@ object FileHandling {
   private val fileMap: scala.collection.mutable.Map[String, Boolean] = scala.collection.mutable.Map();
   private val lock = new ReentrantLock()
 
-
   def validatePath(path: String, callback: () => Unit): Boolean = {
     if (Files.exists(Paths.get(path))) {
       return true;
@@ -101,7 +100,6 @@ object FileHandling {
     val path: Path = Paths.get(segments.headOption.getOrElse(""), segments.tail: _*)
     path.toString
   }
-
 
   def main (args: Array[String]): Unit = {
     createManipulatedDirectory("C:\\Users\\SJB\\cast_projects\\fastscan\\test_folders\\testtt", "C:\\Users\\SJB\\cast_projects\\fastscan\\test_folders\\testt22323t2", (str: String)=>"dhhdhd")

@@ -6,3 +6,4 @@ lazy val root = (project in file("."))
   .settings(
     name := "file-encryption"
   )
+libraryDependencies ++= Seq("org.connectbot" % "jbcrypt" % "1.0.2", "org.connectbot" % "jbcrypt" % "1.0.2")

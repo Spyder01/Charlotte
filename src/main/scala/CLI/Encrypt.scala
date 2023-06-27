@@ -1,14 +1,22 @@
 package CLI
 
+import java.security.MessageDigest
 import java.util.Base64
 import javax.crypto.Cipher
 import javax.crypto.spec.{IvParameterSpec, SecretKeySpec}
+import javax.crypto.BadPaddingException
 
 case class Encrypt(key: String) {
   private val initVector = "encryptionIntVec";
 
+  private def createHash(input: String): String = {
+    val digest = MessageDigest.getInstance("SHA-256")
+    val hash = digest.digest(input.getBytes("UTF-8"))
+    hash.map("%02x".format(_)).mkString
+  }
   private def hashToFixedLength (text: String): String = {
-    return text
+    val doubleHash = createHash(createHash(createHash(text)))
+    doubleHash.reverse.take(8) + doubleHash.take(8)
   }
   def encrypt(text: String): String = {
     val iv = new IvParameterSpec(initVector.getBytes("UTF-8"))
@@ -22,21 +30,17 @@ case class Encrypt(key: String) {
   }
 
   def decrypt(text: String): String = {
-    val iv = new IvParameterSpec(initVector.getBytes("UTF-8"))
-    val skeySpec = new SecretKeySpec(key.getBytes("UTF-8"), "AES")
+    try {
+      val iv = new IvParameterSpec(initVector.getBytes("UTF-8"))
+      val skeySpec = new SecretKeySpec(hashToFixedLength(key).getBytes("UTF-8"), "AES")
 
-    val cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING")
-    cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv)
-    val original = cipher.doFinal(Base64.getDecoder.decode(text))
-    new String(original)
-  }
-}
-
-
-object TestEncrypt {
-  private val encrypt = Encrypt("enIntVecTest2020");
-
-  def main (args: Array[String]) = {
-    println(encrypt.encrypt("Hello, world"))
+      val cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING")
+      cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv)
+      val original = cipher.doFinal(Base64.getDecoder.decode(text))
+      new String(original)
+    } catch {
+      case e: BadPaddingException => throw new Exception("Invalid Key");
+      case _ => throw new Exception("Sorry! Unexpected error occured while decrypting.")
+    }
   }
 }
