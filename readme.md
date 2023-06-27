@@ -1,7 +1,6 @@
 <a id="readme-top"></a>
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
@@ -114,8 +113,9 @@ _For more examples, please refer to the [Documentation](https://github.com/Suhan
 
 - [x] Add Basic Functionality.
 - [x] Add support for encrypting folders. 
-- [ ] Add support for encrypting individual files. 
-- [ ] Resolve the access issues for internal directories. 
+- [x] Add support for encrypting individual files. 
+- [x] Resolve the access issues for internal directories. 
+- [ ] Implement more secure encryption method.
 - [ ] Utilize multithreading for better performance. 
 
 See the [open issues](https://github.com/SuhanBangera/Charlotte/issues) for a full list of proposed features (and known issues).

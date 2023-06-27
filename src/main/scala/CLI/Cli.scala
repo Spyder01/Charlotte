@@ -9,6 +9,8 @@ object Cli {
   def start ():Unit = {
     val data = Interactive.ask();
     encrypt = new Encrypt(data.password);
+    val operation = if (data.encrypt) (text: String)=>encrypt.encrypt(text) else (text: String)=>encrypt.decrypt(text)
+    operate(data, operation)
     data match {
       case _ if data.encrypt => println("Encryption Done")
       case _ if  !data.encrypt => println("Decryption Done")

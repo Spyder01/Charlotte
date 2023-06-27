@@ -53,6 +53,7 @@ object FileHandling {
           bufferedSource.close()
         } catch {
           case e: FileNotFoundException => println(f"We are not able to access file ${_path.toString}")
+          case _ => println(f"And unexpected error while reading file ${_path.toString}")
         }
       }
 
@@ -96,7 +97,17 @@ object FileHandling {
   private def getAllFilePaths(directoryPath: Path): Seq[Path] = {
     val directoryStream = Files.newDirectoryStream(directoryPath)
     try {
-      directoryStream.asScala.toSeq;
+      val paths = directoryStream.asScala.toSeq;
+      var newPaths: Seq[Path] = Seq()
+      paths.foreach{(_path)=>{
+        if (isFolder(_path.toString)){
+          newPaths = newPaths ++ getAllFilePaths(_path)
+        }
+        else if (isFile(_path.toString)) {
+          newPaths = newPaths ++ Seq(_path);
+        }
+      }}
+      newPaths
     } finally {
       directoryStream.close()
     }
