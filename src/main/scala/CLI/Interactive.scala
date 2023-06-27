@@ -37,7 +37,7 @@ object Interactive {
   }
 
   private def askPassword (): String = {
-    var password: String
+    var password: String = ""
     do {
       print("Enter your password: ");
       password = readLine()

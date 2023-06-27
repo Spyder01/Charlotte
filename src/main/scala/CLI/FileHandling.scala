@@ -1,5 +1,6 @@
 package CLI
 
+import java.io.FileNotFoundException
 import java.nio.channels.{FileChannel, FileLock}
 import java.nio.file.{FileSystem, FileSystems, Files, NoSuchFileException, Path, Paths, StandardOpenOption}
 import scala.jdk.CollectionConverters.IteratorHasAsScala
@@ -22,19 +23,37 @@ object FileHandling {
   def isFile(path: String): Boolean = Files.isRegularFile(Paths.get(path))
   def isFolder(path: String): Boolean = Files.isDirectory(Paths.get(path))
 
-  def createManipulatedDirectory(path: String, newPath: String, manipulater: (String)=>String) = {
+  def createManipulatedFile(path: String, newPath: String, manipulator: (String)=>String, tag: String = ""): Unit = {
+    val filename = getBaseName(path)
+    val newFilePath = joinPaths(newPath, f"${filename}-${tag}")
+
+    try {
+      val bufferedSource = Source.fromFile(path);
+      val fileContents = bufferedSource.getLines().mkString("\n")
+      createFile(newFilePath, manipulator(fileContents))
+    } catch {
+      case e: FileNotFoundException => throw new Exception(f"Can't access the file ${path}");
+    }
+  }
+
+  def createManipulatedDirectory(path: String, newPath: String, manipulater: (String)=>String, tag: String = "") = {
       val directoryName = getBaseName(path)
-      val rootDirectoryPath = joinPaths(newPath, directoryName)
+      val rootDirectoryPath = joinPaths(newPath, f"${directoryName}-${tag}")
       createDirectory(rootDirectoryPath)
+
       val paths = getAllFilePaths(Paths.get(path))
+
 
       paths.foreach{(_path)=>{
         val newPath = joinPaths(rootDirectoryPath, removeRootPath(_path.toString, path))
-        val bufferedSource = Source.fromFile(_path.toString)
-        val fileContents = bufferedSource.getLines.mkString("\n")
-        println(manipulater(fileContents))
-        createFile(newPath, manipulater(fileContents))
-        bufferedSource.close()
+        try {
+          val bufferedSource = Source.fromFile(_path.toString)
+          val fileContents = bufferedSource.getLines.mkString("\n")
+          createFile(newPath, manipulater(fileContents))
+          bufferedSource.close()
+        } catch {
+          case e: FileNotFoundException => println(f"We are not able to access file ${_path.toString}")
+        }
       }
 
       }
