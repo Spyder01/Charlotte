@@ -3,11 +3,14 @@ package CLI
 import java.nio.channels.{FileChannel, FileLock}
 import java.nio.file.{FileSystem, FileSystems, Files, NoSuchFileException, Path, Paths, StandardOpenOption}
 import scala.jdk.CollectionConverters.IteratorHasAsScala
+import scala.jdk.CollectionConverters._
 import java.util.concurrent.locks.ReentrantLock
+import scala.io.Source
 
 object FileHandling {
   private val fileMap: scala.collection.mutable.Map[String, Boolean] = scala.collection.mutable.Map();
   private val lock = new ReentrantLock()
+
 
   def validatePath(path: String, callback: () => Unit): Boolean = {
     if (Files.exists(Paths.get(path))) {
@@ -24,12 +27,28 @@ object FileHandling {
       val directoryName = getBaseName(path)
       val rootDirectoryPath = joinPaths(newPath, directoryName)
       createDirectory(rootDirectoryPath)
+      val paths = getAllFilePaths(Paths.get(path))
+
+      paths.foreach{(_path)=>{
+        val newPath = joinPaths(rootDirectoryPath, removeRootPath(_path.toString, path))
+        val bufferedSource = Source.fromFile(_path.toString)
+        val fileContents = bufferedSource.getLines.mkString("\n")
+        println(manipulater(fileContents))
+        createFile(newPath, manipulater(fileContents))
+        bufferedSource.close()
+      }
+
+      }
+  }
+
+  private def removeRootPath(path: String, rootPath: String): String = {
+    Paths.get(rootPath).relativize(Paths.get(path)).toString
   }
 
   private def createDirectory(path: String, callback: ()=>Unit = ()=>{}): Unit = {
-    lock.lock()
+//    lock.lock()
     try {
-      if (!fileMap.contains(path)) {
+      if (!fileMap.contains(path) && !Files.exists(Paths.get(path))) {
         Files.createDirectory(Paths.get(path));
         fileMap(path) = true
       }
@@ -38,34 +57,32 @@ object FileHandling {
       case e: NoSuchFileException => createDirectory(getParent(path), ()=>createDirectory(path));
     } finally {
       callback()
-      lock.unlock()
+//      lock.unlock()
     }
   }
 
-  private def createFile(path: String, contents: String, callback: ()=>Unit = ()=>{}): Unit = {
-    lock.lock()
+  private def createFile(path: String, contents: String, callback: () => Unit = () => {}): Unit = {
     try {
       if (!fileMap.contains(path)) {
-        val filePath = Paths.get(path)
-        val fileChannel = FileChannel.open(filePath, StandardOpenOption.CREATE, StandardOpenOption.WRITE)
-        val fileLock: FileLock = fileChannel.lock()
-        try {
-          Files.write(filePath, contents.getBytes("UTF-8"))
-        } finally {
-          fileLock.release()
-          fileChannel.close()
-        }
+        Files.writeString(Paths.get(path), contents)
         fileMap(path) = true
       }
-    }
-    catch {
-      case e: NoSuchFileException => createDirectory(getParent(path), () => createFile(path, contents));
+    } catch {
+      case e: NoSuchFileException => createDirectory(getParent(path), () => createFile(path, contents))
+      case e: Exception => println(s"Error writing file: ${e.getMessage}")
     } finally {
       callback()
-      lock.unlock()
     }
   }
 
+  private def getAllFilePaths(directoryPath: Path): Seq[Path] = {
+    val directoryStream = Files.newDirectoryStream(directoryPath)
+    try {
+      directoryStream.asScala.toSeq;
+    } finally {
+      directoryStream.close()
+    }
+  }
 
   private def getBaseName(filepath: String): String = Paths.get(filepath).getFileName.toString
 
@@ -81,12 +98,12 @@ object FileHandling {
   }
 
   private def joinPaths(segments: String*): String = {
-    val path: Path = Paths.get(segments.head, segments.tail: _*)
+    val path: Path = Paths.get(segments.headOption.getOrElse(""), segments.tail: _*)
     path.toString
   }
 
 
   def main (args: Array[String]): Unit = {
-    createDirectory("C:\\Users\\SJB\\cast_projects\\test\\test\\test")
+    createManipulatedDirectory("C:\\Users\\SJB\\cast_projects\\fastscan\\test_folders\\testtt", "C:\\Users\\SJB\\cast_projects\\fastscan\\test_folders\\testt22323t2", (str: String)=>"dhhdhd")
   }
 }
