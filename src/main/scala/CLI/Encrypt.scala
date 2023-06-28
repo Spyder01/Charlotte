@@ -5,9 +5,10 @@ import java.util.Base64
 import javax.crypto.Cipher
 import javax.crypto.spec.{IvParameterSpec, SecretKeySpec}
 import javax.crypto.BadPaddingException
+import scala.util.Random
 
 case class Encrypt(key: String) {
-  private val initVector = "encryptionIntVec";
+  private val initVector = Random.alphanumeric.take(16).mkString;
 
   private def createHash(input: String): String = {
     val digest = MessageDigest.getInstance("SHA-256")
@@ -26,11 +27,13 @@ case class Encrypt(key: String) {
     cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv)
 
     val encrypted = cipher.doFinal(text.getBytes())
-    return Base64.getEncoder().encodeToString(encrypted)
+    return initVector + Base64.getEncoder().encodeToString(encrypted)
   }
 
-  def decrypt(text: String): String = {
+  def decrypt(encrypted_text: String): String = {
     try {
+      val initVector = encrypted_text.slice(0, 16)
+      val text = encrypted_text.slice(16, encrypted_text.length);
       val iv = new IvParameterSpec(initVector.getBytes("UTF-8"))
       val skeySpec = new SecretKeySpec(hashToFixedLength(key).getBytes("UTF-8"), "AES")
 

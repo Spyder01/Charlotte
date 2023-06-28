@@ -115,7 +115,7 @@ _For more examples, please refer to the [Documentation](https://github.com/Suhan
 - [x] Add support for encrypting folders. 
 - [x] Add support for encrypting individual files. 
 - [x] Resolve the access issues for internal directories. 
-- [ ] Implement more secure encryption method.
+- [x] Implement more secure encryption method.
 - [ ] Utilize multithreading for better performance. 
 
 See the [open issues](https://github.com/SuhanBangera/Charlotte/issues) for a full list of proposed features (and known issues).

@@ -1,5 +1,6 @@
 package CLI
 
+import scala.annotation.tailrec
 import scala.io.StdIn.{readChar, readLine}
 
 
@@ -10,7 +11,7 @@ object Interactive {
   def ask(): Data = {
     val encrypt = askEncrypted()
     val path = askLocation ("Enter the location of folder or file to be encrypted/decrypted: ");
-    val storePath = askLocation("Enter the location where you want to store your encrypted/decrypted file/files.")
+    val storePath = askLocation("Enter the location where you want to store your encrypted/decrypted file/files: ")
     val password = askPassword();
     Data(encrypt, path, storePath, password);
   }
@@ -24,32 +25,26 @@ object Interactive {
       case _ => throw new Exception("Invalid choice")
     }
   }
-
+@tailrec
   private def askLocation (msg: String): String = {
     var path = ""
-
-   do  {
       print(msg)
       path = readLine();
-    } while (!FileHandling.validatePath(path, ()=>print("Invalid Location. ")));
-
-    path
+     if (FileHandling.validatePath(path, ()=>print("Invalid Location. "))) path else askLocation(msg)
   }
 
-  private def askPassword (): String = {
+  @tailrec
+  private def askPassword(): String = {
     var password: String = ""
-    do {
       print("Enter your password: ");
       password = readLine()
-    } while (!validatePassword(password, ()=>print("Password should be at least 8 characters long: ")))
-    password
+    if (validatePassword(password, ()=>print("Password should be at least 8 characters long: "))) password else askPassword();
   }
 
   private def validatePassword (password: String, callback:()=>Unit = ()=>{} ): Boolean = {
-    if (password.length > 8) {
-      return true;
+    if (password.length > 8) true else {
+      callback()
+      false
     }
-    callback()
-    false
   }
 }
