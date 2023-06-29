@@ -17,7 +17,7 @@
 <h3 align="center">Charlotte</h3>
 
   <p align="center">
-    An awesome Scala based tool to encrypt your folders.
+    An awesome Scala based tool to encrypt your files.
     <br />
     <a href="https://github.com/SuhanBangera/Charlotte"><strong>Explore the docs »</strong></a>
     <br />
