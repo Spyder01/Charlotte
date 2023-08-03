@@ -13,11 +13,11 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Pull docker image
-        run: docker pull castimaging/fast-scan-java-cli:1.2.9
+        run: docker pull castimaging/fast-scan-java-cli:1.7.0-SNAPSHOT
 
       - name: Run Fast Scan
         run: |
          cd ${{ github.workspace }}
           git_folder=$(basename "$(git rev-parse --show-toplevel)") 
           # The git folder name is mapped to the project name
-          docker run -v $(pwd):/fastScan/sourceCode castimaging/fast-scan-java-cli:1.2.9 /fastScan/sourceCode -s https://d2xekhfunbrl0c.cloudfront.net --repoId ${{github.repository_id}} --runId ${{github.run_id}} --runAttempt ${{ github.run_attempt }} -n $git_folder -g "$GITHUB_CONTEXT"
+          docker run -v $(pwd):/fastScan/sourceCode castimaging/fast-scan-java-cli:1.7.0-SNAPSHOT /fastScan/sourceCode -s https://d2xekhfunbrl0c.cloudfront.net --repoId ${{github.repository_id}} --runId ${{github.run_id}} --runAttempt ${{ github.run_attempt }} -n $git_folder -g "$GITHUB_CONTEXT"
